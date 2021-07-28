@@ -11,7 +11,7 @@ bot = telebot.TeleBot(API_KEY)
 server = Flask(__name__)
 
 
-@bot.message_handler(commands=['Greet'])
+@bot.message_handler(commands=['greet'])
 def greet(message):
   bot.reply_to(message, "Hey! Hows it going?")
 
@@ -24,11 +24,10 @@ def getapple(message):
   textFind = '$' + textFind[4:12]  
   bot.send_message(message.chat.id, textFind)
 
-@bot.message_handler(commands=['score'])
+@bot.message_handler(commands=['cricketscore'])
 def score(message):
     sent = bot.send_message(message.chat.id, 'What two teams Cricket Match do you want the score of?')
     bot.register_next_step_handler(sent, series_or_math)
-
 
 def series_or_math(pm):
     team = pm.text
@@ -80,7 +79,7 @@ def time_handler(pm,team,format,sort):
     sent_msg = bot.send_message(pm.chat.id, f"You want the score of an {format} (an {sort}between {team} and in {time}. What Match Number?")
     bot.register_next_step_handler(sent_msg, searching,team,time,format) 
 
-def searching(pm,team,time,format,sort):
+def searching(pm,team,time,format):
     match_num = pm.text
     team = team.split()
     match = team[0] + ' vs ' + team[2] + ' ' + format + ' ' + match_num + ' match ' +  time 
@@ -116,18 +115,18 @@ def gethdfc(message):
     textFindHDFC = "₹" + textFindHDFC[4:12]
     bot.send_message(message.chat.id, textFindHDFC)
 
-@bot.message_handler(commands='diceroll')
+@bot.message_handler(commands=['diceroll'])
 def dice_roll_times(message):
     sent_msg = bot.send_message(message.chat.id, 'How many times do you want to roll the dice?')
     bot.register_next_step_handler(sent_msg, dice_roll)
 
 def dice_roll(message):
-    rolls = str(message.text)    
-    coin = [1,2,3,4,5,6]
+    rolls = message.text
+    dice = [1,2,3,4,5,6]
     answers = []
     rolls = int(rolls)
     for i in range(1,rolls + 1):
-        choice = random.choice(coin)
+        choice = random.choice(dice)
         choice = str(choice)
         answers.append(choice)
     joined = ', '.join(answers)
@@ -146,6 +145,24 @@ def password_generator(message):
     word.insert(index,char_str)
     word = ''.join(word)
     bot.send_message(message.chat.id, word)
+
+@bot.message_handler(commands=['coinflip'])
+def dice_roll_times(message):
+    sent_msg = bot.send_message(message.chat.id, 'How many times do you want to flip the coin?')
+    bot.register_next_step_handler(sent_msg, coin_flip)
+
+def coin_flip(message):
+    flips = message.text
+    flips = str(flips)  
+    coin = ['Heads','Tails']
+    answers = []
+    rolls = int(flips)
+    for i in range(1,flips + 1):
+        choice = random.choice(coin)
+        answers.append(choice)
+    countHeads = answers.count('Heads')
+    countTails = answers.count('Tails')
+    bot.send_message(message.chat.id, '\nHeads is: ' + str(countHeads) +  '\nTails is: ' + str(countTails))
 
 @bot.message_handler(commands=['countvowels'])
 def count_vowels_input(message):
@@ -169,7 +186,6 @@ def rps_input(message):
 
 def rps(message):
     playerchoice = message.text
-    # playerchoice = playerchoice.lower()
     computerchoice = random.choice(['Rock','Paper','Scissor'])
     bot.send_message(message.chat.id, 'My choice is ' + computerchoice)
     if playerchoice == computerchoice:
@@ -188,7 +204,7 @@ def rps(message):
         if computerchoice == "Paper":
             bot.send_message(message.chat.id,'You lose!')
         else:
-                bot.send_message(message.chat.id,"You win!")
+            bot.send_message(message.chat.id,"You win!")
 
 @bot.message_handler(commands=['calculator'])
 def calc_start(message):
@@ -197,7 +213,6 @@ def calc_start(message):
 
 def calc_sorter(message):
     sort = message.text
-
     if sort == 'Add' or sort == 'add':
             sent_msg = bot.send_message(message.chat.id, 'What is the first number you want to add?')
             bot.register_next_step_handler(sent_msg, add)
@@ -211,7 +226,6 @@ def calc_sorter(message):
     elif sort == 'Divide' or sort == 'divide':
             sent_msg = bot.send_message(message.chat.id, 'What is the first number you want to divide?')
             bot.register_next_step_handler(sent_msg, division)
-
 
 def add(message):
     num1 = message.text
@@ -227,7 +241,6 @@ def add_total(message,num1):
 def subtract(message):
     num1 = message.text
     num1 = int(num1)
-    # global ans
     sent_msg = bot.send_message(message.chat.id, 'What is the second number?')
     bot.register_next_step_handler(sent_msg, subtract_total,num1)
 
@@ -257,30 +270,6 @@ def multiply_ans(message,num1):
     quotient = num1/num2
     bot.send_message(message.chat.id, f'Quotient is {quotient}')
 
-def rps(message):
-    playerchoice = message.text
-    playerchoice = playerchoice.lower()
-    computerchoice = random.choice(['Rock','Paper','Scissor'])
-    bot.send_message(message.chat.id, 'My choice is ' + computerchoice)
-    if playerchoice == computerchoice:
-        bot.send_message(message.chat.id,"It is a Tie! You both chose " + playerchoice)
-    elif playerchoice == "Scissor":
-        if computerchoice == "Rock":
-            bot.send_message(message.chat.id,'You lose!')
-        else:
-            bot.send_message(message.chat.id,"You win!")
-    elif playerchoice == "Paper":
-        if computerchoice == "Scissor":
-            bot.send_message(message.chat.id,'You lose!')
-        else:
-            bot.send_message(message.chat.id,"You win!")
-    elif playerchoice == "Rock":
-        if computerchoice == "Paper":
-            bot.send_message(message.chat.id,'You lose!')
-        else:
-                bot.send_message(message.chat.id,"You win!")
-
-
 @bot.message_handler(commands=['weather'])
 def weather_start(message):
     sent_msg = bot.send_message(message.chat.id, 'What place do you want the weather of?')
@@ -288,7 +277,7 @@ def weather_start(message):
 
 def weather(message):
     city = message.text
-    url = "https://www.google.com/search?q="+"weather"+city
+    url = "https://www.google.in/search?q="+"weather"+city
     html = requests.get(url).content
  
     soup = BeautifulSoup(html, 'html.parser')
@@ -296,9 +285,8 @@ def weather(message):
     bot.send_message(message.chat.id, f'Weather of {city} is {temp}')
 
 @bot.message_handler(commands=['streamingsite'])
-
 def streamingsite_start(message):
-    sent_msg = bot.send_message(message.chat.id, 'Do you want information for a movie or tv show?')
+    sent_msg = bot.send_message(message.chat.id, 'Do you want information for a Movie or TV Show?')
     bot.register_next_step_handler(sent_msg, streamingsite_sorter)
 
 def streamingsite_sorter(message):
@@ -331,31 +319,31 @@ def streamingsite_tvshow(message):
             links.append(title)
         except KeyError:
             pass
-    
+
     sites = []
     streaming_sites = ['Netflix','Amazon Prime Video','Hotstar','Sony Liv','Zee5']
     for i in links:
         if i in streaming_sites:
             sites.append(i)
-    if len(sites) == 0:
-        bot.send_message(message.chat.id, f'{show} is not available anywhere!')
-
-
-    sites = ', '.join(sites)
     show = ' '.join(show)
-
-    bot.send_message(message.chat.id, f'{show} is available on {sites}!')
-        
+    if len(sites) == 0:
+        bot.send_message(message.chat.id, f'{show} is not available anywhere! Make sure what you want is a TV Show, also make sure the spelling is correct.')
+    else:
+        sites = ', '.join(sites)
+        # getName = soup.find('div', class_= "title-block")
+        # for i in getName:
+        #     name = i.h1.text
+        #     name = name[1:]
+        bot.send_message(message.chat.id, f'{show} is available on {sites}!')
+            
 def streamingsite_movie_name(message):
     sent_msg = bot.send_message(message.chat.id, 'What Movie?')
-    bot.register_next_step_handler(sent_msg, streamingsite_tvshow)
+    bot.register_next_step_handler(sent_msg, streamingsite_movie)
 
 def streamingsite_movie(message): 
-    movie_orignal= message.text
-
-    movie_orignal = [x.strip() for x in movie_orignal.split(' ')]
-    movie = '-'.join(movie_orignal)
-
+    movie_original= message.text
+    movie_original = [x.strip() for x in movie_original.split(' ')]
+    movie = '-'.join(movie_original)
     url = 'https://www.justwatch.com/in/movie/' + movie
     html = requests.get(url).content
     soup = BeautifulSoup(html, 'html.parser')
@@ -366,26 +354,151 @@ def streamingsite_movie(message):
             links.append(title)
         except KeyError:
             pass
-    
+
     sites = []
     streaming_sites = ['Netflix','Amazon Prime Video','Hotstar','Sony Liv','Zee5']
     for i in links:
         if i in streaming_sites:
             sites.append(i)
-    
+    movie_original = ' '.join(movie_original)
     if len(sites) == 0:
-        bot.send_message(message.chat.id, f'{movie_orignal} is not available anywhere!')
-
+        bot.send_message(message.chat.id, f'{movie_original} is not available anywhere! Make sure what you want is a Movie, also make sure the spelling is correct.')
     else:
         sites = ', '.join(sites)
-        movie_orignal = ' '.join(movie_orignal)
+        bot.send_message(message.chat.id, f'{movie_original} is available on {sites}!')
 
-        bot.send_message(message.chat.id, f'{movie_orignal} is available on {sites}!')
+@bot.message_handler(commands=['stock'])
+def stock_start(message):
+    sent_msg = bot.send_message(message.chat.id, 'What stock price do you want?')
+    bot.register_next_step_handler(sent_msg, stock_get)
 
+def stock_get(message):
+    stock = message.text
+    url = "https://www.google.in/search?q="+stock+"+stock+price"
+    html = requests.get(url).content
+ 
+    soup = BeautifulSoup(html, 'html.parser')
+    stock_price = soup.find('div',class_="BNeawe iBp4i AP7Wnd")
+    stock_price1 = soup.find('div',class_="BNeawe uEec3 AP7Wnd")
+    stock_price = stock_price.getText()
+    stock_price = stock_price.split()[0]
+
+    stock_price_currency = stock_price1.getText()
+    stock_price_currency = stock_price_currency.split()[8]
+    bot.send_message(message.chat.id, f'Stock of {stock} is {stock_price} {stock_price_currency}')
+
+@bot.message_handler(commands=['inrtodollar'])
+def converter_start(message):
+    sent_msg = bot.send_message(message.chat.id, 'What is amount in inr?')
+    bot.register_next_step_handler(sent_msg, converter_get1)
+
+def converter_get1(message):
+    inr = message.text
+    res = requests.get('https://www.goodreturns.in/currency/united-states-dollar-usd-to-indian-rupee-inr-converter.html')
+    dollarQuery = BeautifulSoup(res.text, 'html.parser')
+    queryDollar = dollarQuery.find('div', class_= "currency-rates")
+    dollarPriceQuery = queryDollar.getText()
+    dollarPriceParsed = dollarPriceQuery[13:20]
+    inr = float(inr)
+    inr_to_dollar_rounded = inr/float(dollarPriceParsed)
+    inr_to_dollar = round(inr_to_dollar_rounded, 2)
+    inr_to_dollar = '$' + str(inr_to_dollar)
+    bot.send_message(message.chat.id, 'Price in dollars is ' + inr_to_dollar)
+
+@bot.message_handler(commands=['dollartoinr'])
+def converter_start(message):
+    sent_msg = bot.send_message(message.chat.id, 'What is amount in dollar?')
+    bot.register_next_step_handler(sent_msg, converter_get2)
+
+def converter_get2(message):
+    dollar = message.text
+    res = requests.get('https://www.goodreturns.in/currency/united-states-dollar-usd-to-indian-rupee-inr-converter.html')
+    dollarQuery = BeautifulSoup(res.text, 'html.parser')
+    queryDollar = dollarQuery.find('div', class_= "currency-rates")
+    dollarPriceQuery = queryDollar.getText()
+    dollarPriceParsed = dollarPriceQuery[13:20]
+    dollar = float(dollar)
+    dollar_to_inr_rounded = float(dollarPriceParsed) * dollar
+    dollar_to_inr = round(dollar_to_inr_rounded, 2)
+    dollar_to_inr = '₹' + str(dollar_to_inr)
+    bot.send_message(message.chat.id, 'Price in inr is ' + dollar_to_inr)
+
+@bot.message_handler(commands=['inrtopound'])
+def converter_start(message):
+    sent_msg = bot.send_message(message.chat.id, 'What is amount in inr?')
+    bot.register_next_step_handler(sent_msg, converter_get3)
+
+def converter_get3(message):
+    inr = message.text
+    res = requests.get('https://www.goodreturns.in/currency/british-pound-sterling-gbp-to-indian-rupee-inr-converter.html')
+    poundQuery = BeautifulSoup(res.text, 'html.parser')
+    queryPound = poundQuery.find('div', class_= "moneyweb-floatleft")
+    poundPriceQuery = queryPound.getText()
+    poundPriceParsed = poundPriceQuery[14:20]
+    inr = float(inr)
+    inr_to_pound_rounded = inr/float(poundPriceParsed)
+    inr_to_pound = round(inr_to_pound_rounded, 2)
+    inr_to_pound = '£' + str(inr_to_pound)
+    bot.send_message(message.chat.id, 'Price in pound is ' + inr_to_pound)
+
+@bot.message_handler(commands=['poundtoinr'])
+def converter_start(message):
+    sent_msg = bot.send_message(message.chat.id, 'What is amount in pound?')
+    bot.register_next_step_handler(sent_msg, converter_get4)
+
+def converter_get4(message):
+    pound = message.text
+    res = requests.get('https://www.goodreturns.in/currency/british-pound-sterling-gbp-to-indian-rupee-inr-converter.html')
+    poundQuery = BeautifulSoup(res.text, 'html.parser')
+    queryPound = poundQuery.find('div', class_= "moneyweb-floatleft")
+    poundPriceQuery = queryPound.getText()
+    poundPriceParsed = poundPriceQuery[14:20]
+    pound = float(pound)
+    pound_to_inr_rounded = float(poundPriceParsed) * pound
+    pound_to_inr = round(pound_to_inr_rounded, 2)
+    pound_to_inr = '₹' + str(pound_to_inr)
+    bot.send_message(message.chat.id, 'Price in inr is ' + pound_to_inr)
+
+@bot.message_handler(commands=['inrtoeuro'])
+def converter_start(message):
+    sent_msg = bot.send_message(message.chat.id, 'What is amount in inr?')
+    bot.register_next_step_handler(sent_msg, converter_get5)
+
+def converter_get5(message):
+    inr = message.text
+    res = requests.get('https://www.goodreturns.in/currency/euro-eur-to-indian-rupee-inr-converter.html')
+    euroQuery = BeautifulSoup(res.text, 'html.parser')
+    queryEuro= euroQuery.find('div', class_= "moneyweb-floatleft")
+    queryEuro = queryEuro.getText()
+    euroPriceParsed = queryEuro[14:20]
+    inr = float(inr)
+    inr_to_euro_rounded = inr/float(euroPriceParsed)
+    inr_to_euro = round(inr_to_euro_rounded, 2)
+    inr_to_euro = '€' + str(inr_to_euro)
+    bot.send_message(message.chat.id, 'Price in euro is ' + inr_to_euro)
+
+@bot.message_handler(commands=['eurotoinr'])
+def converter_start(message):
+    sent_msg = bot.send_message(message.chat.id, 'What is amount in euro?')
+    bot.register_next_step_handler(sent_msg, converter_get6)
+
+def converter_get6(message):
+    euro = message.text
+    res = requests.get('https://www.goodreturns.in/currency/euro-eur-to-indian-rupee-inr-converter.html')
+    euroQuery = BeautifulSoup(res.text, 'html.parser')
+    queryEuro= euroQuery.find('div', class_= "moneyweb-floatleft")
+    queryEuro = queryEuro.getText()
+    euroPriceParsed = queryEuro[14:20]
+    euro = float(euro)
+    euro_to_inr_rounded = float(euroPriceParsed) * euro
+    euro_to_inr = round(euro_to_inr_rounded, 2)
+    euro_to_inr = '₹' + str(euro_to_inr )
+    bot.send_message(message.chat.id, 'Price in inr is ' + euro_to_inr)
 
 @bot.message_handler(commands=['help'])
 def help(message):
-    help_str = '/score to get the score of a cricket match\n/getapple to get the stock price of apple\n/gethdfc to get the stock price of HDFC\n/getamazon to get the stock Price for Amazon\n/getapple to get the stock price of Airtel\n/passwordgenerator to generate a 16 letter Alphanumeric Password\n/countvowels to count vowels in a sentence\n/diceroll to roll an x number of dice\n/rockpaperscissor to play Rock, Paper and Scissor\n/calculator to use the calculator\n/weather to get weather of any city\n/streamingsite to get information of where is a movie or show available!'
+    # \n/getapple to get the stock price of apple\n/gethdfc to get the stock price of HDFC\n/getamazon to get the stock Price for Amazon\n/getapple to get the stock price of Airtel
+    help_str = '/cricketscore to get the score of a cricket match\n/passwordgenerator to generate a 16 letter Alphanumeric Password\n/countvowels to count vowels in a sentence\n/diceroll to roll an x number of dice\n/rockpaperscissor to play Rock, Paper and Scissor\n/calculator to use the calculator\n/weather to get weather of any city\n/streamingsite to get information of where is a movie or show available!\n/stock to get stock price of a stock!\n/inrtodollar to convert inr to dollar\n/dollartoinr to convert dollar to inr\n/inrtopound to convert inr to pound\n/poundtoinr to convert pound to inr\n/inrtoeuro to convert inr to euro\n/eurotoinr to euro pound to inr'
     bot.send_message(message.chat.id, help_str)
 
 @server.route('/' + API_KEY, methods=['POST'])
@@ -395,7 +508,7 @@ def getMessage():
 @server.route("/")
 def webhook():
    bot.remove_webhook()
-   bot.set_webhook(url='https://pure-lake-00698.herokuapp.com/' + API_KEY)
+   bot.set_webhook(url='HEROKU_APP' + API_KEY)
    return "!", 200
 if __name__ == "__main__":
    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
