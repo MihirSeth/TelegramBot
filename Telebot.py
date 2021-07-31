@@ -5,6 +5,9 @@ from bs4 import BeautifulSoup
 import requests
 from flask import Flask,request
 from googlesearch import search
+from gnewsclient import gnewsclient
+import smtplib
+
 
 API_KEY = 'API KEY'
 bot = telebot.TeleBot(API_KEY)
@@ -495,11 +498,78 @@ def converter_get6(message):
     euro_to_inr = '₹' + str(euro_to_inr )
     bot.send_message(message.chat.id, 'Price in inr is ' + euro_to_inr)
 
+
+@bot.message_handler(commands=['news'])
+def news_starter(message):
+    sent_msg = bot.send_message(message.chat.id, 'What is the topic you want the news for? The options are World, Nation, Buisness, Technology, Entertainment, Sports, Science, Health!')
+    bot.register_next_step_handler(sent_msg,news)
+def news(message):
+    topic = message.text
+    client = gnewsclient.NewsClient(language='english', location='india', topic=topic, max_results=5)
+    news_list = client.get_news()
+    title1 = "Title: " +news_list[0]['title']
+    title1=str(title1)
+    link1 = "Link: " +  news_list[0]['link']
+    link1 = str(link1)
+    title2= "Title: " + news_list[1]['title']
+    title2=str(title2)
+    link2 = "Link: " + news_list[1]['link']
+    link2 = str(link2)
+    title3 = "Title: "+  news_list[2]['title']
+    title3=str(title3)
+    link3 = "Link: " + news_list[2]['link']
+    link3 = str(link3)
+    ans = f"\nNews 1 is {title1}. The News is at {link1}\n\nNews 2 is {title2}. The News is at {link2}\n\nNews 3 is {title3}. The News is at {link3}".encode('utf-8')
+    bot.send_message(message.chat.id, ans)
+
+@bot.message_handler(commands=['newsmail'])
+def news_mail_starter(message):
+    sent_msg = bot.send_message(message.chat.id, 'What is the topic you want the news for? The options are World, Nation, Buisness, Technology, Entertainment, Sports, Science, Health!')
+    bot.register_next_step_handler(sent_msg,news_topic)
+
+def news_topic(message):
+    topic = message.text
+    client = gnewsclient.NewsClient(language='english', location='india', topic=topic, max_results=5)
+    news_list = client.get_news()
+    title1 = "Title: " +news_list[0]['title']
+    title1=str(title1)
+    link1 = "Link: " +  news_list[0]['link']
+    link1 = str(link1)
+    title2= "Title: " + news_list[1]['title']
+    title2=str(title2)
+    link2 = "Link: " + news_list[1]['link']
+    link2 = str(link2)
+    title3 = "Title: "+  news_list[2]['title']
+    title3=str(title3)
+    link3 = "Link: " + news_list[2]['link']
+    link3 = str(link3)
+    ans = f"\nNews 1 is {title1}. The News is at {link1}\n\nNews 2 is {title2}. The News is at {link2}\n\nNews 3 is {title3}. The News is at {link3}".encode('utf-8')    
+    sent_msg = bot.send_message(message.chat.id, 'What is your email id?')
+    bot.register_next_step_handler(sent_msg, news_mail, ans)
+
+
+def news_mail(message,ans):
+    email = message.text
+    bot.send_message(message.chat.id, email)
+    s = smtplib.SMTP('smtp.gmail.com', 587)
+    # start TLS for security
+    s.starttls()
+    # Authentication
+    s.login("email-id", "password")
+    # message to be sent
+    # message = ans
+    # sending the mail
+    s.sendmail("email-id", email, ans)
+    # terminating the session
+    s.quit()
+    bot.send_message(message.chat.id, 'Mail sent!!!')
+
 @bot.message_handler(commands=['help'])
 def help(message):
     # \n/getapple to get the stock price of apple\n/gethdfc to get the stock price of HDFC\n/getamazon to get the stock Price for Amazon\n/getapple to get the stock price of Airtel
-    help_str = '/cricketscore to get the score of a cricket match\n/passwordgenerator to generate a 16 letter Alphanumeric Password\n/countvowels to count vowels in a sentence\n/diceroll to roll an x number of dice\n/rockpaperscissor to play Rock, Paper and Scissor\n/calculator to use the calculator\n/weather to get weather of any city\n/streamingsite to get information of where is a movie or show available!\n/stock to get stock price of a stock!\n/inrtodollar to convert inr to dollar\n/dollartoinr to convert dollar to inr\n/inrtopound to convert inr to pound\n/poundtoinr to convert pound to inr\n/inrtoeuro to convert inr to euro\n/eurotoinr to euro pound to inr'
+    help_str = '/cricketscore to get the score of a cricket match\n/passwordgenerator to generate a 16 letter Alphanumeric Password\n/countvowels to count vowels in a sentence\n/diceroll to roll an x number of dice\n/rockpaperscissor to play Rock, Paper and Scissor\n/calculator to use the calculator\n/weather to get weather of any city\n/streamingsite to get information of where is a movie or show available!\n/stock to get stock price of a stock!\n/inrtodollar to convert inr to dollar\n/dollartoinr to convert dollar to inr\n/inrtopound to convert inr to pound\n/poundtoinr to convert pound to inr\n/inrtoeuro to convert inr to euro\n/eurotoinr to euro pound to inr\n/news to get news\n/newsmail to get mailed news'
     bot.send_message(message.chat.id, help_str)
+    
 
 @server.route('/' + API_KEY, methods=['POST'])
 def getMessage():
